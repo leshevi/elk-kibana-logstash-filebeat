@@ -1,0 +1,76 @@
+version: '3.8'
+services:
+  elasticsearch:
+    image: ghcr.io/leshevi/elasticsearch:8.19.10
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false # Отключаем пароли для удобства тестов
+      - "ES_JAVA_OPTS=-Xms2g -Xmx2g" # Лимит RAM для Java (минимум 512МБ)
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    deploy:
+      resources:
+        limits:
+          memory: 2.5g # Жесткий лимит контейнера, чтобы не уронить систему
+    ports:
+      - "9200:9200"
+    networks:
+      - elk
+
+  kibana:
+    image: ghcr.io/leshevi/kibana:8.19.10 # Укажите версию, которую пушили
+    container_name: kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    deploy:
+      resources:
+        limits:
+          memory: 800m
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+    networks:
+      - elk
+
+  logstash:
+    image: ghcr.io/leshevi/logstash:8.19.10
+    container_name: logstash
+    environment:
+      - "LS_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - ./logstash_conf/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+    ports:
+      - "5044:5044" # Порт для приема логов
+    depends_on:
+      - elasticsearch
+    networks:
+      - elk
+
+  filebeat:
+    image: ghcr.io/leshevi/filebeat:8.19.10 # Не забудьте тоже отзеркалить этот образ!
+    container_name: filebeat
+    user: root # Нужно для чтения системных логов
+    volumes:
+      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro # Если хотите логи других контейнеров
+      - /var/log:/var/log/app:ro # Монтируем папку с логами вашего приложения
+    deploy:
+      resources:
+        limits:
+          memory: 200m
+    depends_on:
+      - logstash
+    networks:
+      - elk
+
+networks:
+  elk:
+    driver: bridge
