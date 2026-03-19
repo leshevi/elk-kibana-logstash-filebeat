@@ -14,7 +14,7 @@ jobs:
 
       - name: Install Ansible Galaxy roles
         run: |
-          URL="https://${{ secrets.GITLAB_USER }}:${{ secrets.GITLAB_TOKEN }}@:gitlab.com/ansible_playbooks7843206/docker"
+          URL="https://${{ secrets.GITLAB_USER }}:${{ secrets.GITLAB_TOKEN }}@gitlab.com/ansible_playbooks7843206/docker.git"
           
           sed -i "s|GITLAB_URL|$URL|g" ansible/requirements.yml
           
