@@ -15,11 +15,8 @@ jobs:
       - name: Install Ansible Galaxy roles
         run: |
           URL="https://${{ secrets.GITLAB_USER }}:${{ secrets.GITLAB_TOKEN }}@gitlab.com/ansible_playbooks7843206/docker.git"
-          
           sed -i "s|GITLAB_URL|$URL|g" ansible/requirements.yml
-          
           echo "Requirements file updated."
-          
           ansible-galaxy install -r ansible/requirements.yml
 
       # Запуск Playbook
@@ -27,12 +24,12 @@ jobs:
         uses: dawidd6/action-ansible-playbook@v2
         with:
           playbook: ansible/setup_elk.yml
-          inventory: |
-            [all]
-            ${{ secrets.HOST }}
+          # Используем правильный флаг -i
           options: |
+            -i ${{ secrets.HOST }},
             --user ${{ secrets.USERNAME }}
-            --priv-key .ssh_key
+            --private-key .ssh_key
+            --extra-vars "ansible_ssh_common_args='-o StrictHostKeyChecking=no'"
         env:
           PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
           GITHUB_ACTOR: ${{ github.actor }}
