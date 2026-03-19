@@ -19,6 +19,17 @@ jobs:
           echo "Requirements file updated."
           ansible-galaxy install -r ansible/requirements.yml
 
+      - name: Copy files to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          # Указываем, какие файлы и папки перенести
+          source: "docker-compose.yml,filebeat.yml,logstash_conf/"
+          target: "~/elk-stack"
+          strip_components: 0 # Сохраняем структуру папок (для logstash_conf)
+
       - name: Setup SSH Key
         run: |
           echo "${{ secrets.SSH_KEY }}" > .ssh_key
