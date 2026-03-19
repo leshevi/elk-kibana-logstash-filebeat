@@ -1,0 +1,3 @@
+- src: https://gitlab.com/ansible_playbooks7843206/docker
+  name: docker_install_role
+  scm: git

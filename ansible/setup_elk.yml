@@ -1,0 +1,26 @@
+- name: Prepare Server and Install Docker
+  hosts: all
+  become: yes
+  tasks:
+    # 1. Настройка лимитов ядра для Elastic
+    - name: Set vm.max_map_count for Elasticsearch
+      sysctl:
+        name: vm.max_map_count
+        value: '262144'
+        state: present
+        reload: yes
+
+    # 2. Установка Docker через вашу роль
+    - name: Install Docker via GitLab role
+      include_role:
+        name: docker_install_role
+
+- name: Deploy ELK Stack
+  hosts: all
+  tasks:
+    - name: Run Docker Compose
+      shell: |
+        cd ~/elk-stack
+        echo "{{ lookup('env', 'PAT_TOKEN') }}" | docker login ghcr.io -u {{ lookup('env', 'GITHUB_ACTOR') }} --password-stdin
+        docker-compose pull
+        docker-compose up -d
