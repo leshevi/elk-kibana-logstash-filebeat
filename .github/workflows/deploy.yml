@@ -40,9 +40,3 @@ jobs:
           GITHUB_ACTOR: ${{ github.actor }}
           # Создаем временный файл ключа для Ansible
           ANSIBLE_HOST_KEY_CHECKING: "False"
-
-      # Предварительно создаем файл ключа, чтобы Ansible мог зайти на сервер
-      - name: Setup SSH Key
-        run: |
-          echo "${{ secrets.SSH_KEY }}" > .ssh_key
-          chmod 600 .ssh_key

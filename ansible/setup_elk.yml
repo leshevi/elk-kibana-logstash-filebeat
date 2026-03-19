@@ -18,9 +18,17 @@
 - name: Deploy ELK Stack
   hosts: all
   tasks:
+    - name: Create project directory
+      file:
+        path: "~/elk-stack"
+        state: directory
+        mode: '0755'
+
     - name: Run Docker Compose
       shell: |
         cd ~/elk-stack
         echo "{{ lookup('env', 'PAT_TOKEN') }}" | docker login ghcr.io -u {{ lookup('env', 'GITHUB_ACTOR') }} --password-stdin
-        docker-compose pull
-        docker-compose up -d
+        docker compose pull
+        docker compose up -d
+      environment:
+        PATH: "/usr/local/bin:/usr/bin:/bin:{{ ansible_env.PATH }}"
