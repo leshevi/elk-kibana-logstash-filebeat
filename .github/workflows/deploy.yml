@@ -13,10 +13,10 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install Ansible Galaxy roles
-        run: ansible-galaxy install -r ansible/requirements.yml
-        env:
-          GITLAB_USER: ${{ secrets.GITLAB_USER }}
-          GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
+        run: |
+          sed -i "s/GITLAB_USER/${{ secrets.GITLAB_USER }}/g" ansible/requirements.yml
+          sed -i "s/GITLAB_TOKEN/${{ secrets.GITLAB_TOKEN }}/g" ansible/requirements.yml
+          ansible-galaxy install -r ansible/requirements.yml
 
       # Запуск Playbook
       - name: Run Playbook
