@@ -51,3 +51,5 @@ jobs:
           GITHUB_ACTOR: ${{ github.actor }}
           # Создаем временный файл ключа для Ansible
           ANSIBLE_HOST_KEY_CHECKING: "False"
+          ANSIBLE_PYTHON_INTERPRETER: /usr/bin/python3
+          ANSIBLE_DEPRECATION_WARNINGS: 'False'
