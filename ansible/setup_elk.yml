@@ -18,6 +18,13 @@
 - name: Deploy ELK Stack
   hosts: all
   tasks:
+    - name: Give insecure permissions to an existing file
+      file:
+        path: "/home/{{ lookup('env', 'USERNAME') }}/elk-stack/filebeat.yml"
+        owner: root
+        group: root
+        mode: '0644'
+
     - name: Run Docker Compose
       shell: |
         cd ~/elk-stack
